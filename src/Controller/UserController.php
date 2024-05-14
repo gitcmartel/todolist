@@ -4,10 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Form\UserType;
+use App\Form\UserFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -33,39 +34,47 @@ class UserController extends AbstractController
 
 
     #[Route('/users/create', name: 'app_user_create')]
-    public function createAction(Request $request)
+    public function create(Request $request) : Response
     {
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-
+        $form = $this->createForm(UserFormType::class, $user);
+        
         $form->handleRequest($request);
-
+        
         if ($form->isSubmitted() && $form->isValid()) {
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user, 
                 $user->getPassword()
             );
+
             $user->setPassword($hashedPassword);
+
+            $user->setRoles([$form->get('role')->getData()]);
 
             $this->manager->persist($user);
             $this->manager->flush();
 
             $this->addFlash('success', "L'utilisateur a bien été ajouté.");
 
-            return $this->redirectToRoute('user_list');
+            return $this->redirectToRoute('app_user_list');
         }
-
-        return $this->render('user/create.html.twig', ['form' => $form->createView()]);
+        
+        
+        return $this->render('user/create.html.twig', [
+            'controller_name' => 'UserController',
+            'formUser' => $form->createView()
+        ]);
     }
 
 
     #[Route('/users/{id}/edit', name: 'app_user_edit')]
     public function editAction(User $user, Request $request)
     {
-        $form = $this->createForm(UserType::class, $user);
+
+        $form = $this->createForm(UserFormType::class, $user);
 
         $form->handleRequest($request);
-
+        
         if ($form->isSubmitted() && $form->isValid()) {
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user, 
