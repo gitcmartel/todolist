@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Task;
-use App\Form\TaskType;
+use App\Form\TaskFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\TaskRepository;
@@ -28,11 +28,11 @@ class TaskController extends AbstractController
     }
 
 
-    #[Route('/tasks', name: 'app_task_create')]
+    #[Route('/tasks/create', name: 'app_task_create')]
     public function createAction(Request $request)
     {
         $task = new Task();
-        $form = $this->createForm(TaskType::class, $task);
+        $form = $this->createForm(TaskFormType::class, $task);
 
         $form->handleRequest($request);
 
@@ -43,7 +43,7 @@ class TaskController extends AbstractController
 
             $this->addFlash('success', 'La tâche a été bien été ajoutée.');
 
-            return $this->redirectToRoute('task_list');
+            return $this->redirectToRoute('app_task_list');
         }
 
         return $this->render('task/create.html.twig', ['form' => $form->createView()]);
@@ -53,7 +53,7 @@ class TaskController extends AbstractController
     #[Route('/tasks/{id}/edit', name: 'app_task_edit')]
     public function editAction(Task $task, Request $request)
     {
-        $form = $this->createForm(TaskType::class, $task);
+        $form = $this->createForm(TaskFormType::class, $task);
 
         $form->handleRequest($request);
 
