@@ -13,11 +13,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(
     fields: ['email'], 
-    message: 'This email address is already used  !'
+    message: 'Cette adresse email est déjà utilisée'
 )]
 #[UniqueEntity(
     fields: ['username'], 
-    message: 'This username is already used !'
+    message: 'Ce nom d\'utilisateur est déjà utilisé'
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -28,14 +28,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 25)]
     #[Assert\NotBlank(message:"Vous devez saisir un nom d'utilisateur.")]
+    #[Assert\Length(
+        max: 25, 
+        maxMessage: "Le nom d'utilisateur doit faire maximum {{ limit }} caractères"
+    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 64)]
+    #[Assert\Length(
+        max: 64, 
+        maxMessage: "Le mot de passe doit faire maximum {{ limit }} caractères"
+    )]
+    #[Assert\PasswordStrength([
+        'message' => 'Votre mot de passe est trop simple. Utilisez des nombres, majuscules, minuscules et caractères spéciaux'
+    ])]
     private ?string $password = null;
 
     #[ORM\Column(length: 60)]
     #[Assert\NotBlank(message:"Vous devez saisir une adresse email.")]
     #[Assert\Email(message:"Le format de l'adresse n'est pas correct.")]
+    #[assert\Length(
+        max: 60, 
+        maxMessage : "L'adresse email doit faire maximum {{ limit }} characters"
+    )]
     private ?string $email = null;
 
     #[ORM\Column]
