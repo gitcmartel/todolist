@@ -2,7 +2,7 @@
 framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
-    annotations: false
+    #annotations: false
     http_method_override: false
     handle_all_throwables: true
 
@@ -18,6 +18,9 @@ framework:
     php_errors:
         log: true
 
+    validation:
+        enable_attributes: true
+        
 when@test:
     framework:
         test: true
