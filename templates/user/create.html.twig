@@ -27,6 +27,7 @@
                     {{ form_widget(formUser.password.second, {'attr': {'class': "form-control w-25"}})}}
                 </div>
                 <div class="text-danger">
+                    {{ form_errors(formUser.password.first) }}
                     {{ form_errors(formUser.password) }}
                 </div>
             </div>
