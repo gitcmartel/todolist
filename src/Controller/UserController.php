@@ -101,7 +101,6 @@ class UserController extends AbstractController
         $currentRole = $user->getRoles()[0] ?? 'ROLE_USER';
 
         $form = $this->createForm(UserFormType::class, $user, [
-            'include_password' => false, 
             'current_role' => $currentRole
         ]);
 
