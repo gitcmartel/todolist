@@ -26,6 +26,22 @@
             </div>
             <div class="form-group row">
                 <div class="mb-4 mb-3 d-flex">
+                    {{ form_label(formUser.password.first, 'Mot de passe', {'label_attr': {'class': 'w-25'}})}}
+                    {{ form_widget(formUser.password.first, {'attr': {'class': "form-control w-25"}})}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="mb-4 mb-3 d-flex">
+                    {{ form_label(formUser.password.second, 'Confirmation du mot de passe', {'label_attr': {'class': 'w-25'}})}}
+                    {{ form_widget(formUser.password.second, {'attr': {'class': "form-control w-25"}})}}
+                </div>
+                <div class="text-danger">
+                    {{ form_errors(formUser.password.first) }}
+                    {{ form_errors(formUser.password) }}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="mb-4 mb-3 d-flex">
                     {{ form_label(formUser.role, 'Role', {'label_attr': {'class': 'w-25'}})}}
                     {{ form_widget(formUser.role, {'attr': {'class': "form-control w-25"}})}}
                 </div>
