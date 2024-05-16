@@ -18,13 +18,6 @@ class UserFormType extends AbstractType
     {
         $builder
             ->add('username', TextType::class)
-            ->add('password', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'invalid_message' => 'Les deux mots de passe doivent correspondre.',
-                'required' => true,
-                'first_options'  => [],
-                'second_options' => [],
-            ])
             ->add('email', EmailType::class)
             ->add('role', ChoiceType::class, [
                 'choices' => [
@@ -34,15 +27,27 @@ class UserFormType extends AbstractType
                 'mapped' => false,
                 'expanded' => false,
                 'multiple' => false,
-                'label' => 'Role'
+                'data' => $options['current_role'],
+                'label' => 'Role', 
             ])
         ;
+        if ($options['include_password']) {
+            $builder->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'invalid_message' => 'Les deux mots de passe doivent correspondre.',
+                'required' => true,
+                'first_options'  => [],
+                'second_options' => [],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'include_password' => true,
+            'current_role' => null
         ]);
     }
 }
