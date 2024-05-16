@@ -5,8 +5,7 @@
 
 {% block body %}
     <div class="row">
-        {{ form_start(formUser, {'action' : path('app_user_create')}) }}
-            <div>{{ dump(form_errors(formUser)) }}</div>
+        {{ form_start(formUser) }}
             <div class="form-group row">
                 <div class="mb-4 mb-3 d-flex">
                     {{ form_label(formUser.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'w-25'}})}}
@@ -50,7 +49,12 @@
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-success pull-right">Ajouter</button>
+            <div class="form-group row">
+
+                    <input type="submit" class="btn btn-block btn-primary text-white py-3 px-5"
+                        value="Ajouter">
+
+            </div>
         {{ form_end(formUser) }}
     </div>
 {% endblock %}
