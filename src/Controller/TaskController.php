@@ -35,7 +35,7 @@ class TaskController extends AbstractController
         $form = $this->createForm(TaskFormType::class, $task);
 
         $form->handleRequest($request);
-
+        dump($form);
         if ($form->isSubmitted() && $form->isValid()) {
 
             $this->manager->persist($task);
@@ -75,7 +75,7 @@ class TaskController extends AbstractController
     #[Route('/tasks/{id}/toggle', name: 'app_task_toggle')]
     public function toggleTaskAction(Task $task)
     {
-        $task->toggle(!$task->isDone());
+        $task->toggle(!$task->getIsDone());
         $this->manager->flush();
 
         $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
