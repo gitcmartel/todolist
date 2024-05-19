@@ -20,6 +20,10 @@ class Task
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message:"Vous devez saisir un titre.")]
+    #[Assert\Length(
+        max: 100, 
+        maxMessage: "Le nom titre doit faire maximum {{ limit }} caractères"
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -28,6 +32,10 @@ class Task
 
     #[ORM\Column]
     private ?bool $isDone = null;
+
+    #[ORM\ManyToOne(inversedBy: 'tasks')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -92,5 +100,17 @@ class Task
     public function toggle($flag)
     {
         $this->isDone = $flag;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }
