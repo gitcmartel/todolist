@@ -9,16 +9,20 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\TaskRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class TaskController extends AbstractController
 {
     private TaskRepository $taskRepository;
     private EntityManagerInterface $manager;
+    private Security $security;
 
-    public function __construct(TaskRepository $taskRepository, EntityManagerInterface $manager)
+    public function __construct(TaskRepository $taskRepository, EntityManagerInterface $manager, Security $security)
     {
         $this->taskRepository = $taskRepository;
         $this->manager = $manager;
+        $this->security = $security;
     }
 
     #[Route('/tasks', name: 'app_task_list')]
@@ -27,7 +31,7 @@ class TaskController extends AbstractController
         return $this->render('task/list.html.twig', ['tasks' => $this->taskRepository->findAll()]);
     }
 
-
+    #[IsGranted('ROLE_USER')]
     #[Route('/tasks/create', name: 'app_task_create')]
     public function createAction(Request $request)
     {
@@ -37,6 +41,8 @@ class TaskController extends AbstractController
         $form->handleRequest($request);
         dump($form);
         if ($form->isSubmitted() && $form->isValid()) {
+            $task->setCreatedAt(new \DateTime());
+            $task->setUser($this->security->getUser());
 
             $this->manager->persist($task);
             $this->manager->flush();
@@ -46,7 +52,10 @@ class TaskController extends AbstractController
             return $this->redirectToRoute('app_task_list');
         }
 
-        return $this->render('task/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('task/create.html.twig', [
+            'controller' => 'TaskController',
+            'formTask' => $form
+        ]);
     }
 
 
