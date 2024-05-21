@@ -11,12 +11,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * The User controller.
  *
  * This controller allows you to create, list and edit application users.
  */
+#[IsGranted('ROLE_ADMIN')]
 class UserController extends AbstractController
 {
     private UserRepository $userRepository;
@@ -42,6 +44,7 @@ class UserController extends AbstractController
      *
      * @return Response Rendering the user list.
      */
+
     #[Route('/users', name: 'app_user_list')]
     public function list()
     {
