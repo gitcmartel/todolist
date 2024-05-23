@@ -71,7 +71,7 @@ class TaskController extends AbstractController
 
             $this->addFlash('success', 'La tâche a bien été modifiée.');
 
-            return $this->redirectToRoute('task_list');
+            return $this->redirectToRoute('app_task_list');
         }
 
         return $this->render('task/edit.html.twig', [
@@ -89,18 +89,28 @@ class TaskController extends AbstractController
 
         $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
 
-        return $this->redirectToRoute('task_list');
+        return $this->redirectToRoute('app_task_list');
     }
 
-
+    #[IsGranted('ROLE_USER')]
     #[Route('/tasks/{id}/delete', name: 'app_task_delete')]
-    public function deleteTaskAction(Task $task)
+    public function deleteTaskAction(Task $task, Request $request)
     {
-        $this->manager->remove($task);
-        $this->manager>flush();
+        if ($task->getUser()->getId() !== $this->security->getUser()->getId()) {
+            $this->addFlash('error', 'La tâche ne peut-être supprimée que par son auteur.');
+            return $this->redirectToRoute('app_task_list');
+        }
+        
+        $submittedToken = $request->get('token');
 
-        $this->addFlash('success', 'La tâche a bien été supprimée.');
+        if ($this->isCsrfTokenValid('delete-item', $submittedToken)) {
+            dump($this->manager);
+            $this->manager->remove($task);
+            $this->manager->flush();
+    
+            $this->addFlash('success', 'La tâche a bien été supprimée.');
+        }
 
-        return $this->redirectToRoute('task_list');
+        return $this->redirectToRoute('app_task_list');
     }
 }
