@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Form\TaskFormType;
+use App\Service\TaskAuthorizationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\TaskRepository;
@@ -94,13 +95,13 @@ class TaskController extends AbstractController
 
     #[IsGranted('ROLE_USER')]
     #[Route('/tasks/{id}/delete', name: 'app_task_delete')]
-    public function deleteTaskAction(Task $task, Request $request)
+    public function deleteTaskAction(Task $task, Request $request, TaskAuthorizationService $authService)
     {
-        if ($task->getUser()->getId() !== $this->security->getUser()->getId()) {
-            $this->addFlash('error', 'La tâche ne peut-être supprimée que par son auteur.');
+        if (!$authService->canDelete($task)) {
+            $this->addFlash('error', 'Vous n\'avez pas les droits nécessaires pour supprimer cette tâche.');
             return $this->redirectToRoute('app_task_list');
         }
-        
+
         $submittedToken = $request->get('token');
 
         if ($this->isCsrfTokenValid('delete-item', $submittedToken)) {
