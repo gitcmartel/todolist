@@ -2,10 +2,36 @@
 
 {% block body %}
     <div class="row">
-        {{ form_start(form, {'action' : path('app_task_edit', { 'id' : task.id })}) }}
-            {{ form_widget(form) }}
-
-            <button type="submit" class="btn btn-success pull-right">Modifier</button>
-        {{ form_end(form) }}
+        {{ form_start(formTask, {'action' : path('app_task_edit', { 'id' : task.id })}) }}
+            {{ form_widget(formTask._token) }}
+            <div class="form-group row">
+                <div class="mb-4 mb-3 d-flex">
+                    {{ form_label(formTask.title, 'Titre', {'label_attr': {'class': 'w-25'}})}}
+                    {{ form_widget(formTask.title, {'attr': {'class': "form-control w-25"}})}}
+                </div>
+                <div class="text-danger">
+                    {{ form_errors(formTask.title) }}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="mb-4 mb-3 d-flex">
+                    {{ form_label(formTask.content, 'Contenu', {'label_attr': {'class': 'w-25'}})}}
+                    {{ form_widget(formTask.content, {'attr': {'class': "form-control w-25"}})}}
+                </div>
+                <div class="text-danger">
+                    {{ form_errors(formTask.content) }}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="mb-4 mb-3 d-flex">
+                    {{ form_label(formTask.isDone, 'Terminé', {'label_attr': {'class': 'w-25'}})}}
+                    {{ form_widget(formTask.isDone, {'attr': {'class': "form-check-input"}})}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <input type="submit" name="submit" class="btn btn-block btn-primary text-white px-5 mb-3"
+                    value="Ajouter">
+            </div>
+        {{ form_end(formTask) }}
     </div>
 {% endblock %}
