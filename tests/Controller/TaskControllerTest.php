@@ -21,12 +21,7 @@ class TaskControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $tasks = TaskFactory::createMany(2, []);
-
-        $taskRepository = $this->createMock(TaskRepository::class);
-        $taskRepository->method('findAll')
-            ->willReturn($tasks);
-        self::getContainer()->set(TaskRepository::class, $taskRepository);
+        $tasks = TaskFactory::createMany(2);
 
         $crawler = $client->request('GET', '/tasks');
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
