@@ -7,18 +7,21 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
+use App\Tests\Factory\UserFactory;
+use App\Tests\Factory\TaskFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 class TaskControllerTest extends WebTestCase
 {
+    use ResetDatabase, Factories;
 
-
-    /**
-     * @dataProvider tasksProvider
-     */
-    public function testListActionReturnsView($tasks)
+    public function testListActionReturnsView()
     {
         $client = static::createClient();
+
+        $tasks = TaskFactory::createMany(2, []);
 
         $taskRepository = $this->createMock(TaskRepository::class);
         $taskRepository->method('findAll')
@@ -27,7 +30,6 @@ class TaskControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/tasks');
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        //$this->assertStringContainsString('Accès Refusé', $crawler->filter('h1')->text());
     }
 
     public function testCreateActionReturnsRedirectHttpCode()
@@ -42,6 +44,11 @@ class TaskControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
+
         $userRepository = static::getContainer()->get(UserRepository::class);
 
         // Retrieve the test user
@@ -54,24 +61,110 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertStringContainsString('Titre', $crawler->filter('label')->text());
     }
-    
-    public function tasksProvider()
+
+    public function testCreateActionReturnsTasksListAndContainsData()
     {
-        $task1 = new Task();
-        $task1->setId(1);
-        $task1->setCreatedAt(new \DateTime);
-        $task1->setTitle('Title test 1');
-        $task1->setContent(('Task content 1'));
-        $task1->setUser(new User());
+        $client = static::createClient();
+        
+        UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
 
-        $task2 = new Task();
-        $task2->setId(2);
-        $task2->setCreatedAt(new \DateTime);
-        $task2->setTitle('Title test 2');
-        $task2->setContent(('Task content 2'));
-        $task2->setUser(new User());
+        // Simulate $testUser being logged in
+        $userRepository = static::getContainer()->get(UserRepository::class);
 
-        $tasks = [$task1, $task2];
-        yield[$tasks];
+        // Retrieve the test user
+        $testUser = $userRepository->findOneByUsername('usertest');
+
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/tasks/create');
+
+        // Select the button
+        $buttonCrawlerNode = $crawler->selectButton('submit');
+
+        // Retrieve the Form object for the form belonging to this button
+        $form = $buttonCrawlerNode->form();
+
+        // Set values to the form object and submit it
+        $client->submit($form, [
+            'task_form[title]' => 'Titre de la tâche',
+            'task_form[content]' => 'Contenu de la tâche',
+            'task_form[isDone]' => '1',
+        ]);
+
+        // Controls that there is a redirection to the tasks list page
+        $this->assertResponseRedirects('/tasks', 302);
+        $crawler = $client->followRedirect();
+
+        // Filter the 'a' elements to find those who contains the desired string
+        $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
+            return strpos($node->text(), 'Titre de la tâche') !== false;
+        });
+
+        $this->assertGreaterThan(0, count($filteredLinks));
+    }
+
+    public function testEditActionReturnsView()
+    {
+        $client = static::createClient();
+
+        $user = UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
+
+        TaskFactory::createOne([
+            'title' => 'Titre de la tâche',
+            'content' => 'Contenu de la tâche', 
+            'user' => $user
+        ]);
+
+        $crawler = $client->request('GET', '/tasks/1/edit');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertStringContainsString('Titre', $crawler->filter('label')->text());
+    }
+
+    public function testEditActionReturnsTasksListAndContainsModifiedData()
+    {
+        $client = static::createClient();
+
+        $user =UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
+
+        TaskFactory::createOne([
+            'title' => 'Titre de la tâche',
+            'content' => 'Contenu de la tâche', 
+            'user' => $user
+        ]);
+
+        $crawler = $client->request('GET', '/tasks/1/edit');
+
+        // Select the button
+        $buttonCrawlerNode = $crawler->selectButton('submit');
+
+        // Retrieve the Form object for the form belonging to this button
+        $form = $buttonCrawlerNode->form();
+
+        // Set values to the form object and submit it
+        $client->submit($form, [
+            'task_form[title]' => 'Titre de la tâche modifié',
+            'task_form[content]' => 'Contenu de la tâche modifié',
+            'task_form[isDone]' => '1',
+        ]);
+
+        // Controls that there is a redirection to the tasks list page
+        $this->assertResponseRedirects('/tasks', 302);
+        $crawler = $client->followRedirect();
+
+        // Filter the 'a' elements to find those who contains the desired string
+        $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
+            return strpos($node->text(), 'Titre de la tâche modifié') !== false;
+        });
+
+        $this->assertGreaterThan(0, count($filteredLinks));
     }
 }
