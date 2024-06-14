@@ -105,7 +105,6 @@ class TaskController extends AbstractController
         $submittedToken = $request->get('token');
 
         if ($this->isCsrfTokenValid('delete-item', $submittedToken)) {
-            dump($this->manager);
             $this->manager->remove($task);
             $this->manager->flush();
     
