@@ -168,13 +168,13 @@ class TaskControllerTest extends WebTestCase
             'roles' => ['ROLE_USER']
         ]);
 
-        TaskFactory::createOne([
+        $task = TaskFactory::createOne([
             'title' => 'Titre de la tâche',
             'content' => 'Contenu de la tâche', 
             'user' => $user
         ]);
 
-        $crawler = $client->request('GET', '/tasks/1/toggle');
+        $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/toggle');
 
         // Controls that there is a redirection to the tasks list page
         $this->assertResponseRedirects('/tasks', 302);
