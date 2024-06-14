@@ -2,10 +2,6 @@
 
 namespace App\Tests\Controller;
 
-
-use App\Entity\Task;
-use App\Entity\User;
-use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Tests\Factory\UserFactory;
 use App\Tests\Factory\TaskFactory;
@@ -161,5 +157,34 @@ class TaskControllerTest extends WebTestCase
         });
 
         $this->assertGreaterThan(0, count($filteredLinks));
+    }
+
+    public function testToggleTaskActionReturnsTasksListAndButtonWithMarkAsDoneLabel()
+    {
+        $client = static::createClient();
+
+        $user =UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
+
+        TaskFactory::createOne([
+            'title' => 'Titre de la tâche',
+            'content' => 'Contenu de la tâche', 
+            'user' => $user
+        ]);
+
+        $crawler = $client->request('GET', '/tasks/1/toggle');
+
+        // Controls that there is a redirection to the tasks list page
+        $this->assertResponseRedirects('/tasks', 302);
+        $crawler = $client->followRedirect();
+
+        // Filter the 'button' elements to find those who contains the desired string
+        $filteredButtons = $crawler->filter('button')->reduce(function ($node) {
+            return strpos($node->text(), 'Marquer non terminée') !== false;
+        });
+
+        $this->assertGreaterThan(0, count($filteredButtons));
     }
 }
