@@ -187,4 +187,51 @@ class TaskControllerTest extends WebTestCase
 
         $this->assertGreaterThan(0, count($filteredButtons));
     }
+
+    public function testDeleteActionReturnsEmptyTasksList()
+    {
+        $client = static::createClient();
+        
+        $user = UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
+
+        TaskFactory::createOne([
+            'title' => 'Titre de la tâche',
+            'content' => 'Contenu de la tâche', 
+            'user' => $user
+        ]);
+
+        // Simulate $testUser being logged in
+        $userRepository = static::getContainer()->get(UserRepository::class);
+
+        // Retrieve the test user
+        $testUser = $userRepository->findOneByUsername('usertest');
+
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/tasks');
+
+        // Select the button
+        $buttonCrawlerNode = $crawler->selectButton('deleteSubmit');
+
+        // Retrieve the Form object for the form belonging to this button
+        $form = $buttonCrawlerNode->form();
+
+        // Set values to the form object and submit it
+        $client->submit($form);
+        
+        // Controls that there is a redirection to the tasks list page
+        $this->assertResponseRedirects('/tasks', 302);
+        $crawler = $client->followRedirect();
+
+        // Filter the 'a' elements to find those who contains the desired string
+        $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
+            return strpos($node->text(), 'Titre de la tâche') !== false;
+        });
+
+        // Given that the unique task as been deleted there should not be any title in the tasks list page
+        $this->assertEquals(0, count($filteredLinks));
+    }
 }
