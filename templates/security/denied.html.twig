@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="d-flex">
+            <div>
+                <h1>Accès Refusé</h1>
+                <p>Vous n'avez pas la permission d'accéder à cette page.</p>
+                <p><a href="{{ path('app_home') }}">Retour à la page d'accueil</a></p>
+            </div>
+            <img src="{{ asset('img/lost.jpg') }}" alt="Accès Refusé">
+        </div>
+    </div>
+{% endblock %}

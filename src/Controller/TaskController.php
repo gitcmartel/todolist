@@ -40,7 +40,7 @@ class TaskController extends AbstractController
         $form = $this->createForm(TaskFormType::class, $task);
 
         $form->handleRequest($request);
-        dump($form);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $task->setCreatedAt(new \DateTime());
             $task->setUser($this->security->getUser());
@@ -76,7 +76,7 @@ class TaskController extends AbstractController
         }
 
         return $this->render('task/edit.html.twig', [
-            'form' => $form->createView(),
+            'formTask' => $form->createView(),
             'task' => $task,
         ]);
     }
@@ -85,7 +85,7 @@ class TaskController extends AbstractController
     #[Route('/tasks/{id}/toggle', name: 'app_task_toggle')]
     public function toggleTaskAction(Task $task)
     {
-        $task->toggle(!$task->getIsDone());
+        $task->setIsDone(!$task->getIsDone());
         $this->manager->flush();
 
         $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
@@ -105,7 +105,6 @@ class TaskController extends AbstractController
         $submittedToken = $request->get('token');
 
         if ($this->isCsrfTokenValid('delete-item', $submittedToken)) {
-            dump($this->manager);
             $this->manager->remove($task);
             $this->manager->flush();
     

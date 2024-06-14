@@ -24,7 +24,7 @@
                     {% if is_granted('ROLE_USER') %}
                         <form action="{{ path('app_task_delete', {'id' : task.id }) }}">
                             <input type="hidden" name="token" value="{{ csrf_token('delete-item') }}">
-                            <button class="btn btn-danger btn-sm pull-right">Supprimer</button>
+                            <input type="submit" name="deleteSubmit" class="btn btn-danger btn-sm pull-right" value="Supprimer">
                         </form>
                     {% endif %}
                 </div>
