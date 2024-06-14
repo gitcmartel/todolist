@@ -37,7 +37,7 @@ class AccessDeniedHandlerTest extends WebTestCase
 
         $this->client->request('GET', '/users');
 
-        // Controls that there is a redirection to the access denied
+        // Controls that there is a redirection to the access denied page
         $this->assertResponseRedirects('/security/denied', 302);
     }
 }
