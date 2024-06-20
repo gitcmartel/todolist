@@ -79,12 +79,12 @@ class UserControllerTest extends WebTestCase
     {
         $this->createAndLoginTestUser();
 
-        UserFactory::createOne([
+        $usertest = UserFactory::createOne([
             'username' => 'newUser',
             'roles' => ['ROLE_USER']
         ]);
 
-        $crawler = $this->client->request('GET', '/users/2/edit');
+        $crawler = $this->client->request('GET', '/users/' . $usertest->getId() . '/edit');
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
         // Filter the 'input' elements to find those who contains the desired string
@@ -99,12 +99,12 @@ class UserControllerTest extends WebTestCase
     {
         $this->createAndLoginTestUser();
 
-        UserFactory::createOne([
+        $user = UserFactory::createOne([
             'username' => 'newUser',
             'roles' => ['ROLE_USER']
         ]);
 
-        $crawler = $this->client->request('GET', '/users/2/edit');
+        $crawler = $this->client->request('GET', '/users/' . $user->getId() . '/edit');
 
         // Select the button
         $buttonCrawlerNode = $crawler->selectButton('submit');
