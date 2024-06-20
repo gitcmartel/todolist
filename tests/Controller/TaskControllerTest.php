@@ -13,28 +13,42 @@ class TaskControllerTest extends WebTestCase
 {
     use ResetDatabase, Factories;
 
+    private $client;
+    private $userRepository;
+
+    protected function setUp(): void 
+    {
+        $this->client = static::createClient();
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
+    }
+
+    private function createAndLoginTestUser()
+    {
+        UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $testUser = $this->userRepository->findOneByUsername('usertest');
+        $this->client->loginUser($testUser);
+    }
+    
     public function testListActionReturnsView()
     {
-        $client = static::createClient();
-
         $tasks = TaskFactory::createMany(2);
 
-        $crawler = $client->request('GET', '/tasks');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $crawler = $this->client->request('GET', '/tasks');
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
     }
 
     public function testCreateActionReturnsRedirectHttpCode()
     {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/tasks/create');
-        $this->assertEquals(302, $client->getResponse()->getStatusCode());
+        $crawler = $this->client->request('GET', '/tasks/create');
+        $this->assertEquals(302, $this->client->getResponse()->getStatusCode());
     }
 
     public function testCreateActionReturnsView()
     {
-        $client = static::createClient();
-
         UserFactory::createOne([
             'username' => 'usertest',
             'roles' => ['ROLE_USER']
@@ -46,17 +60,15 @@ class TaskControllerTest extends WebTestCase
         $testUser = $userRepository->findOneByUsername('usertest');
 
         // Simulate $testUser being logged in
-        $client->loginUser($testUser);
+        $this->client->loginUser($testUser);
 
-        $crawler = $client->request('GET', '/tasks/create');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $crawler = $this->client->request('GET', '/tasks/create');
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertStringContainsString('Titre', $crawler->filter('label')->text());
     }
 
     public function testCreateActionReturnsTasksListAndContainsData()
-    {
-        $client = static::createClient();
-        
+    {       
         UserFactory::createOne([
             'username' => 'usertest',
             'roles' => ['ROLE_USER']
@@ -68,9 +80,9 @@ class TaskControllerTest extends WebTestCase
         // Retrieve the test user
         $testUser = $userRepository->findOneByUsername('usertest');
 
-        $client->loginUser($testUser);
+        $this->client->loginUser($testUser);
 
-        $crawler = $client->request('GET', '/tasks/create');
+        $crawler = $this->client->request('GET', '/tasks/create');
 
         // Select the button
         $buttonCrawlerNode = $crawler->selectButton('submit');
@@ -79,7 +91,7 @@ class TaskControllerTest extends WebTestCase
         $form = $buttonCrawlerNode->form();
 
         // Set values to the form object and submit it
-        $client->submit($form, [
+        $this->client->submit($form, [
             'task_form[title]' => 'Titre de la tâche',
             'task_form[content]' => 'Contenu de la tâche',
             'task_form[isDone]' => '1',
@@ -87,7 +99,7 @@ class TaskControllerTest extends WebTestCase
 
         // Controls that there is a redirection to the tasks list page
         $this->assertResponseRedirects('/tasks', 302);
-        $crawler = $client->followRedirect();
+        $crawler = $this->client->followRedirect();
 
         // Filter the 'a' elements to find those who contains the desired string
         $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
@@ -99,70 +111,24 @@ class TaskControllerTest extends WebTestCase
 
     public function testEditActionReturnsView()
     {
-        $client = static::createClient();
-
         $user = UserFactory::createOne([
             'username' => 'usertest',
             'roles' => ['ROLE_USER']
         ]);
 
-        TaskFactory::createOne([
+        $task = TaskFactory::createOne([
             'title' => 'Titre de la tâche',
             'content' => 'Contenu de la tâche', 
             'user' => $user
         ]);
-
-        $crawler = $client->request('GET', '/tasks/1/edit');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        
+        $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/edit');
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertStringContainsString('Titre', $crawler->filter('label')->text());
     }
 
     public function testEditActionReturnsTasksListAndContainsModifiedData()
     {
-        $client = static::createClient();
-
-        $user =UserFactory::createOne([
-            'username' => 'usertest',
-            'roles' => ['ROLE_USER']
-        ]);
-
-        TaskFactory::createOne([
-            'title' => 'Titre de la tâche',
-            'content' => 'Contenu de la tâche', 
-            'user' => $user
-        ]);
-
-        $crawler = $client->request('GET', '/tasks/1/edit');
-
-        // Select the button
-        $buttonCrawlerNode = $crawler->selectButton('submit');
-
-        // Retrieve the Form object for the form belonging to this button
-        $form = $buttonCrawlerNode->form();
-
-        // Set values to the form object and submit it
-        $client->submit($form, [
-            'task_form[title]' => 'Titre de la tâche modifié',
-            'task_form[content]' => 'Contenu de la tâche modifié',
-            'task_form[isDone]' => '1',
-        ]);
-
-        // Controls that there is a redirection to the tasks list page
-        $this->assertResponseRedirects('/tasks', 302);
-        $crawler = $client->followRedirect();
-
-        // Filter the 'a' elements to find those who contains the desired string
-        $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
-            return strpos($node->text(), 'Titre de la tâche modifié') !== false;
-        });
-
-        $this->assertGreaterThan(0, count($filteredLinks));
-    }
-
-    public function testToggleTaskActionReturnsTasksListAndButtonWithMarkAsDoneLabel()
-    {
-        $client = static::createClient();
-
         $user =UserFactory::createOne([
             'username' => 'usertest',
             'roles' => ['ROLE_USER']
@@ -174,11 +140,51 @@ class TaskControllerTest extends WebTestCase
             'user' => $user
         ]);
 
-        $crawler = $client->request('GET', '/tasks/' . $task->getId() . '/toggle');
+        $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/edit');
+
+        // Select the button
+        $buttonCrawlerNode = $crawler->selectButton('submit');
+
+        // Retrieve the Form object for the form belonging to this button
+        $form = $buttonCrawlerNode->form();
+
+        // Set values to the form object and submit it
+        $this->client->submit($form, [
+            'task_form[title]' => 'Titre de la tâche modifié',
+            'task_form[content]' => 'Contenu de la tâche modifié',
+            'task_form[isDone]' => '1',
+        ]);
 
         // Controls that there is a redirection to the tasks list page
         $this->assertResponseRedirects('/tasks', 302);
-        $crawler = $client->followRedirect();
+        $crawler = $this->client->followRedirect();
+
+        // Filter the 'a' elements to find those who contains the desired string
+        $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
+            return strpos($node->text(), 'Titre de la tâche modifié') !== false;
+        });
+
+        $this->assertGreaterThan(0, count($filteredLinks));
+    }
+
+    public function testToggleTaskActionReturnsTasksListAndButtonWithMarkAsDoneLabel()
+    {
+        $user =UserFactory::createOne([
+            'username' => 'usertest',
+            'roles' => ['ROLE_USER']
+        ]);
+
+        $task = TaskFactory::createOne([
+            'title' => 'Titre de la tâche',
+            'content' => 'Contenu de la tâche', 
+            'user' => $user
+        ]);
+
+        $crawler = $this->client->request('GET', '/tasks/' . $task->getId() . '/toggle');
+
+        // Controls that there is a redirection to the tasks list page
+        $this->assertResponseRedirects('/tasks', 302);
+        $crawler = $this->client->followRedirect();
 
         // Filter the 'button' elements to find those who contains the desired string
         $filteredButtons = $crawler->filter('button')->reduce(function ($node) {
@@ -190,8 +196,6 @@ class TaskControllerTest extends WebTestCase
 
     public function testDeleteActionReturnsEmptyTasksList()
     {
-        $client = static::createClient();
-        
         $user = UserFactory::createOne([
             'username' => 'usertest',
             'roles' => ['ROLE_USER']
@@ -209,9 +213,9 @@ class TaskControllerTest extends WebTestCase
         // Retrieve the test user
         $testUser = $userRepository->findOneByUsername('usertest');
 
-        $client->loginUser($testUser);
+        $this->client->loginUser($testUser);
 
-        $crawler = $client->request('GET', '/tasks');
+        $crawler = $this->client->request('GET', '/tasks');
 
         // Select the button
         $buttonCrawlerNode = $crawler->selectButton('deleteSubmit');
@@ -220,11 +224,11 @@ class TaskControllerTest extends WebTestCase
         $form = $buttonCrawlerNode->form();
 
         // Set values to the form object and submit it
-        $client->submit($form);
+        $this->client->submit($form);
         
         // Controls that there is a redirection to the tasks list page
         $this->assertResponseRedirects('/tasks', 302);
-        $crawler = $client->followRedirect();
+        $crawler = $this->client->followRedirect();
 
         // Filter the 'a' elements to find those who contains the desired string
         $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
