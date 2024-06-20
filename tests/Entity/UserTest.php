@@ -100,4 +100,10 @@ class UserTest extends TestCase
         $this->assertEquals(1, $initialNumberOfTasks - count($this->user->getTasks()));
         $this->assertFalse($this->user->getTasks()->contains($task), "The task should not be in the tasks list after removal.");
     }
+
+    public function testEraseCredentials()
+    {
+        $this->user->eraseCredentials();
+        $this->assertTrue(true);
+    }
 }
