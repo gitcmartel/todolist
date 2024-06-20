@@ -2,7 +2,6 @@
 
 namespace App\Tests\Service;
 
-use App\Repository\UserRepository;
 use App\Tests\Factory\TaskFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Security\Core\Security;
