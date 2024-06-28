@@ -177,6 +177,7 @@ class TaskControllerTest extends WebTestCase
         $task = TaskFactory::createOne([
             'title' => 'Titre de la tâche',
             'content' => 'Contenu de la tâche', 
+            'is_done' => 0,
             'user' => $user
         ]);
 
@@ -241,6 +242,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testDeleteActionUnautorizedReturnsFullTasksList()
     {
+
+
         $userCreator = UserFactory::createOne([
             'username' => 'userCreator',
             'roles' => ['ROLE_USER']
@@ -282,7 +285,7 @@ class TaskControllerTest extends WebTestCase
         
         // Filter the 'a' elements to find those who contains the desired string
         $filteredLinks = $crawler->filter('a')->reduce(function ($node) {
-            return strpos($node->text(), 'Titre de la tâche') === true;
+            return strpos($node->text(), 'Titre de la tâche') !== false;
         });
         
         // Given that the unique task as been deleted there should not be any title in the tasks list page
