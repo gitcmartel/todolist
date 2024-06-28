@@ -108,6 +108,13 @@
 
 8 - Tests
 
+    Unit and functional tests were written in the “tests” directory. The subdirectories mirror those of the "src" folder and contain the tests of the corresponding classes.
+    Each test class extends the webtestcase class. 
+    The "Foundry" bundle is used to quickly create entities and populate them with test data.
+    You can use this command to execute the tests : php bin/phpunit tests.
+    You can generate a coverage report by executing this command : php bin/phpunit --coverage-html public/test-coverage
+
+
   
    
 
