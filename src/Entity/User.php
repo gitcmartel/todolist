@@ -6,19 +6,19 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(
-    fields: ['email'], 
+    fields: ['email'],
     message: 'Cette adresse email est déjà utilisée'
 )]
 #[UniqueEntity(
-    fields: ['username'], 
+    fields: ['username'],
     message: 'Ce nom d\'utilisateur est déjà utilisé'
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -29,28 +29,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 25)]
-    #[Assert\NotBlank(message:"Vous devez saisir un nom d'utilisateur.")]
+    #[Assert\NotBlank(message: "Vous devez saisir un nom d'utilisateur.")]
     #[Assert\Length(
-        max: 25, 
+        max: 25,
         maxMessage: "Le nom d'utilisateur doit faire maximum {{ limit }} caractères"
     )]
     private ?string $username = null;
 
     #[ORM\Column(length: 64)]
     #[Assert\Length(
-        max: 64, 
-        maxMessage: "Le mot de passe doit faire maximum {{ limit }} caractères"
+        max: 64,
+        maxMessage: 'Le mot de passe doit faire maximum {{ limit }} caractères'
     )]
     #[Assert\PasswordStrength([
-        'message' => 'Votre mot de passe est trop simple. Utilisez des nombres, majuscules, minuscules et caractères spéciaux'
+        'message' => 'Votre mot de passe est trop simple. Utilisez des nombres, majuscules, minuscules et caractères spéciaux',
     ])]
     private ?string $password = null;
 
     #[ORM\Column(length: 60)]
-    #[Assert\NotBlank(message:"Vous devez saisir une adresse email.")]
-    #[Assert\Email(message:"Le format de l'adresse n'est pas correct.")]
-    #[assert\Length(
-        max: 60, 
+    #[Assert\NotBlank(message: 'Vous devez saisir une adresse email.')]
+    #[Assert\Email(message: "Le format de l'adresse n'est pas correct.")]
+    #[Assert\Length(
+        max: 60,
         maxMessage : "L'adresse email doit faire maximum {{ limit }} characters"
     )]
     private ?string $email = null;
@@ -68,6 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->tasks = new ArrayCollection();
     }
+
     public function getId(): ?int
     {
         return $this->id;

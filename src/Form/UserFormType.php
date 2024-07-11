@@ -4,13 +4,13 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserFormType extends AbstractType
 {
@@ -23,7 +23,7 @@ class UserFormType extends AbstractType
                 'type' => PasswordType::class,
                 'invalid_message' => 'Les deux mots de passe doivent correspondre.',
                 'required' => true,
-                'first_options'  => [],
+                'first_options' => [],
                 'second_options' => [],
             ])
             ->add('role', ChoiceType::class, [
@@ -35,7 +35,7 @@ class UserFormType extends AbstractType
                 'expanded' => false,
                 'multiple' => false,
                 'data' => $options['current_role'],
-                'label' => 'Role', 
+                'label' => 'Role',
             ])
         ;
     }
@@ -44,7 +44,7 @@ class UserFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
-            'current_role' => null
+            'current_role' => null,
         ]);
     }
 }
