@@ -127,7 +127,7 @@ E - Create the mysql database 'todolist' and execute this command to create the 
 
   In the UserController we have prohibited access to routes for users who do not have the Admin role. This is handled by adding the #[IsGranted('ROLE_ADMIN')] attribute above the class.
 
-  If you want to prohibit access to a particular road, you must place the attribute above the road.
+  If you want to prohibit access to a particular route, you must place the attribute above the route.
 
   In the database users are stored in the user entity.
 
