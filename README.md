@@ -8,7 +8,7 @@
 
 2 - Requirements
 
-- Environnment : PHP 8.2, Composer, Symfony CLI, scoop
+- Environnment : PHP 8.2, Composer, Symfony CLI, scoop, Git
 - PHP Framework : Symfony 6.4
 - Tests bundles : dama/doctrine-test-bundle, phpunit/phpunit, zenstruck/foundry
 
