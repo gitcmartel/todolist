@@ -120,8 +120,8 @@ E - Create the mysql database 'todolist' and execute this command to create the 
   - When the user tries to access a resource for which he does not have the necessary permissions, this class redirects him to the page security\denied.html.twig: firewalls: main: access_denied_handler: App\Security\AccessDeniedHandler
   - Each user is assigned a role. In the application we have configured the following roles:
 
-    o ROLE_ADMIN: he has access to all the pages of the application
-    o ROLE_USER: it does not have access to the user management pages
+    - ROLE_ADMIN: he has access to all the pages of the application
+    - ROLE_USER: it does not have access to the user management pages
 
     You can create other roles if you want and have them inherit rights from other roles. For example, the admin role has the rights assigned to the user role: ROLE_ADMIN: [ROLE_USER].
 
