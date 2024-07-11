@@ -10,7 +10,7 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class AuthenticationEntryPoint implements AuthenticationEntryPointInterface
 {
-    public function __construct(private UrlGeneratorInterface $urlGenerator) 
+    public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
     }
 

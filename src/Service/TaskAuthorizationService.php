@@ -4,8 +4,8 @@
 
 namespace App\Service;
 
-use Symfony\Component\Security\Core\Security;
 use App\Entity\Task;
+use Symfony\Component\Security\Core\Security;
 
 class TaskAuthorizationService
 {
@@ -18,13 +18,13 @@ class TaskAuthorizationService
 
     public function canDelete(Task $task): bool
     {
-        $role_is_admin = in_array("ROLE_ADMIN", $this->security->getUser()->getRoles());
+        $role_is_admin = in_array('ROLE_ADMIN', $this->security->getUser()->getRoles());
         $username = $task->getUser()->getUsername();
 
-        if ($username == 'anonyme' && ! $role_is_admin) {
+        if ('anonyme' == $username && !$role_is_admin) {
             return false;
         } else {
-            if ($username != 'anonyme' && $task->getUser()->getId() !== $this->security->getUser()->getId()) {
+            if ('anonyme' != $username && $task->getUser()->getId() !== $this->security->getUser()->getId()) {
                 return false;
             }
         }

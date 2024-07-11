@@ -4,14 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Form\TaskFormType;
-use App\Service\TaskAuthorizationService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\TaskRepository;
-use Symfony\Component\HttpFoundation\Request;
+use App\Service\TaskAuthorizationService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TaskController extends AbstractController
 {
@@ -55,10 +55,9 @@ class TaskController extends AbstractController
 
         return $this->render('task/create.html.twig', [
             'controller' => 'TaskController',
-            'formTask' => $form
+            'formTask' => $form,
         ]);
     }
-
 
     #[Route('/tasks/{id}/edit', name: 'app_task_edit')]
     public function editAction(Task $task, Request $request)
@@ -81,7 +80,6 @@ class TaskController extends AbstractController
         ]);
     }
 
-
     #[Route('/tasks/{id}/toggle', name: 'app_task_toggle')]
     public function toggleTaskAction(Task $task)
     {
@@ -99,6 +97,7 @@ class TaskController extends AbstractController
     {
         if (!$authService->canDelete($task)) {
             $this->addFlash('error', 'Vous n\'avez pas les droits nécessaires pour supprimer cette tâche.');
+
             return $this->redirectToRoute('app_task_list');
         }
 
@@ -107,7 +106,7 @@ class TaskController extends AbstractController
         if ($this->isCsrfTokenValid('delete-item', $submittedToken)) {
             $this->manager->remove($task);
             $this->manager->flush();
-    
+
             $this->addFlash('success', 'La tâche a bien été supprimée.');
         }
 

@@ -19,15 +19,15 @@ class Task
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message:"Vous devez saisir un titre.")]
+    #[Assert\NotBlank(message: 'Vous devez saisir un titre.')]
     #[Assert\Length(
-        max: 100, 
-        maxMessage: "Le nom titre doit faire maximum {{ limit }} caractères"
+        max: 100,
+        maxMessage: 'Le nom titre doit faire maximum {{ limit }} caractères'
     )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Assert\NotBlank(message:"Vous devez saisir du contenu.")]
+    #[Assert\NotBlank(message: 'Vous devez saisir du contenu.')]
     private ?string $content = null;
 
     #[ORM\Column]

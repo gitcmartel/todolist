@@ -2,10 +2,10 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Task;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use App\Entity\User;
-use App\Entity\Task;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixture extends Fixture
@@ -25,7 +25,7 @@ class AppFixture extends Fixture
         $user->setUsername('usertest');
         $user->setPassword($this->passwordHasher->hashPassword($user, 'passwordTest!1'));
         $user->setEmail('usertest@test.fr');
-        $user->setRoles(["ROLE_USER"]);
+        $user->setRoles(['ROLE_USER']);
         $this->addReference('usertest', $user);
         $manager->persist($user);
 
@@ -33,7 +33,7 @@ class AppFixture extends Fixture
         $user->setUsername('useradmintest');
         $user->setPassword($this->passwordHasher->hashPassword($user, 'passwordTest!1'));
         $user->setEmail('useradmintest@test.fr');
-        $user->setRoles(["ROLE_ADMIN"]);
+        $user->setRoles(['ROLE_ADMIN']);
         $this->addReference('useradmintest', $user);
         $manager->persist($user);
 
@@ -41,7 +41,7 @@ class AppFixture extends Fixture
         $user->setUsername('anonyme');
         $user->setPassword($this->passwordHasher->hashPassword($user, 'passwordTest!1'));
         $user->setEmail('anonyme@test.fr');
-        $user->setRoles(["ROLE_USER"]);
+        $user->setRoles(['ROLE_USER']);
         $this->addReference('anonyme', $user);
         $manager->persist($user);
 
@@ -64,7 +64,7 @@ class AppFixture extends Fixture
         $user = $this->getReference('usertest');
         $task->setUser($user);
         $manager->persist($task);
-        
+
         $task = new Task();
         $task->setTitle('Rédaction de la documentation');
         $task->setCreatedAt(new \DateTime());
